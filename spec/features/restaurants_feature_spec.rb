@@ -1,6 +1,16 @@
 require 'rails_helper'
 
 feature 'restaurants' do
+
+  before  do
+    visit('/')
+    click_link('Sign up')
+    fill_in('Email', with: 'test@example.com')
+    fill_in('Password', with: 'testtest')
+    fill_in('Password confirmation', with: 'testtest')
+    click_button('Sign up')
+  end
+
   context 'no restaraunts have been added' do
     scenario 'should display a prompt to add a restaurant' do
       visit '/restaurants'
@@ -78,4 +88,26 @@ feature 'restaurants' do
       expect(page).to have_content 'Restaurant deleted sucessfully'
     end
   end
-end
+
+    scenario 'display restaurants' do
+      visit '/restaurants'
+      expect(page).to have_content('KFC')
+      expect(page).not_to have_content('No restaurants yet')
+    end
+  end
+
+  context 'Not signed in' do
+
+    before do
+      visit '/'
+      click_link 'Sign out'
+    end
+
+    scenario 'User cannot add restaurant' do
+      visit '/'
+      click_link 'Add a restaurant'
+      expect(page).not_to have_button('Create Restaurant')
+      expect(page).to have_button('Log in')
+    end
+
+  end
