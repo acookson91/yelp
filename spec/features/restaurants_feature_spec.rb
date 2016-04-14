@@ -1,8 +1,7 @@
 require 'rails_helper'
 
 feature 'restaurants' do
-
-  before  do
+  before do
     visit('/')
     click_link('Sign up')
     fill_in('Email', with: 'test@example.com')
@@ -11,7 +10,7 @@ feature 'restaurants' do
     click_button('Sign up')
   end
 
-  context 'no restaraunts have been added' do
+  context 'no restaurants have been added' do
     scenario 'should display a prompt to add a restaurant' do
       visit '/restaurants'
       expect(page).to have_content 'No restaurants yet'
@@ -21,11 +20,13 @@ feature 'restaurants' do
 
   context 'restaurants have been added' do
     before do
-      Restaurant.create(name: 'KFC')
+      restaurant = Restaurant.new(name: 'KFC')
+      restaurant.user = User.first
+      restaurant.save
     end
 
     scenario 'display restaurants' do
-      visit '/restaurants'
+      visit '/'
       expect(page).to have_content('KFC')
       expect(page).not_to have_content('No restaurants yet')
     end
@@ -51,11 +52,10 @@ feature 'restaurants' do
         expect(page).to have_content 'error'
       end
     end
-
   end
 
   context 'viewing restaurants' do
-    let!(:kfc){Restaurant.create(name:'KFC')}
+    let!(:kfc) { Restaurant.create(name: 'KFC') }
 
     scenario 'lets a user view a restaurant' do
       visit '/restaurants'
@@ -66,7 +66,11 @@ feature 'restaurants' do
   end
 
   context 'editing restaurants' do
-    before { Restaurant.create name: 'KFC' }
+    before do
+      restaurant = Restaurant.new(name: 'KFC')
+      restaurant.user = User.first
+      restaurant.save
+    end
 
     scenario 'let a user edit a restaurant' do
       visit '/restaurants'
@@ -78,8 +82,12 @@ feature 'restaurants' do
     end
   end
 
-  context 'deleting restuarants' do
-    before {Restaurant.create name: 'KFC'}
+  context 'deleting restaurants' do
+    before do
+      restaurant = Restaurant.new(name: 'KFC')
+      restaurant.user = User.first
+      restaurant.save
+    end
 
     scenario 'User can delete restaurant' do
       visit '/restaurants'
@@ -87,18 +95,17 @@ feature 'restaurants' do
       expect(page).not_to have_content 'KFC'
       expect(page).to have_content 'Restaurant deleted sucessfully'
     end
-  end
 
     scenario 'display restaurants' do
       visit '/restaurants'
-      expect(page).to have_content('KFC')
-      expect(page).not_to have_content('No restaurants yet')
+      expect(page).to have_content 'KFC'
+      expect(page).not_to have_content 'No restaurants yet'
     end
   end
 
   context 'Not signed in' do
-
     before do
+      Restaurant.create name: 'KFC'
       visit '/'
       click_link 'Sign out'
     end
@@ -106,8 +113,38 @@ feature 'restaurants' do
     scenario 'User cannot add restaurant' do
       visit '/'
       click_link 'Add a restaurant'
-      expect(page).not_to have_button('Create Restaurant')
+      expect(page).not_to have_button 'Create Restaurant'
       expect(page).to have_button('Log in')
     end
 
+    scenario 'User cannot add restaurant' do
+      visit '/'
+      click_link 'Edit KFC'
+      expect(page).not_to have_button 'Update Restaurant'
+      expect(page).to have_button('Log in')
+    end
   end
+
+  context 'Not my restaurant' do
+    before do
+      visit '/'
+      click_link 'Add a restaurant'
+      fill_in 'Name', with: 'KFC'
+      click_button 'Create Restaurant'
+      expect(page).to have_content 'KFC'
+      click_link 'Sign out'
+      visit '/'
+      click_link('Sign up')
+      fill_in('Email', with: 'test2@example.com')
+      fill_in('Password', with: 'testtest')
+      fill_in('Password confirmation', with: 'testtest')
+      click_button('Sign up')
+    end
+
+    scenario 'Cannot edit/delete restaurant' do
+      visit '/'
+      expect(page).not_to have_link 'Edit KFC'
+      expect(page).not_to have_link 'Delete KFC'
+    end
+  end
+end
