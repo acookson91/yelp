@@ -25,4 +25,7 @@ class User < ActiveRecord::Base
    end
  end
 
+ def has_reviewed?(restaurant:)
+   self.reviews.where(restaurant: restaurant).any?
+ end
 end

@@ -9,6 +9,7 @@ RSpec.describe Review, type: :model do
   describe 'kfc ' do
     it 'should delete review when kfc is deleted' do
       review = Review.create(thoughts: 'haha', rating:1)
+      review.user = User.new
       kfc.reviews << review
       expect{kfc.destroy}.to change{Review.count}
     end

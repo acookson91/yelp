@@ -117,11 +117,9 @@ feature 'restaurants' do
       expect(page).to have_button('Log in')
     end
 
-    scenario 'User cannot add restaurant' do
+    scenario 'User cannot edit restaurant' do
       visit '/'
-      click_link 'Edit KFC'
       expect(page).not_to have_button 'Update Restaurant'
-      expect(page).to have_button('Log in')
     end
   end
 
