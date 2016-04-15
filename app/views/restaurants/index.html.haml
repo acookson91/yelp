@@ -10,8 +10,7 @@
       Reviews for:
       = restaurant.name
 
-      %p Average rating:
-      = restaurant.average_rating
+      %p Average rating: #{ restaurant.average_rating.to_i }
 
     - if restaurant.reviews.any?
       %ul

@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'spec_helper'
 
 describe Restaurant, type: :model do
   it { is_expected.to have_many :reviews }
@@ -29,7 +28,15 @@ describe Restaurant, type: :model do
       restaurant.reviews.create(rating: 4)
       expect(restaurant.average_rating).to eq 4
     end
+  end
 
+  context 'multiple reviews' do
+    it 'returns the average' do
+      restaurant = Restaurant.create(name: 'The Ivy')
+      restaurant.reviews.create(rating: 1)
+      restaurant.reviews.create(rating: 5)
+      expect(restaurant.average_rating).to eq 3
+    end
   end
 
 end
