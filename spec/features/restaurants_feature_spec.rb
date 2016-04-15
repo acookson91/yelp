@@ -1,13 +1,10 @@
 require 'rails_helper'
 
 feature 'restaurants' do
+  doubles
+
   before do
-    visit('/')
-    click_link('Sign up')
-    fill_in('Email', with: 'test@example.com')
-    fill_in('Password', with: 'testtest')
-    fill_in('Password confirmation', with: 'testtest')
-    click_button('Sign up')
+    sign_up(email, password)
   end
 
   context 'no restaurants have been added' do
@@ -34,20 +31,14 @@ feature 'restaurants' do
 
   context 'creating restaurants' do
     scenario 'prompts user to fill out a form, then displays the new restaurant' do
-      visit '/restaurants'
-      click_link 'Add a restaurant'
-      fill_in 'Name', with: 'KFC'
-      click_button 'Create Restaurant'
+      create_restaurant(name)
       expect(page).to have_content 'KFC'
       expect(current_path).to eq '/restaurants'
     end
 
     context 'an invaild restaurant' do
       it 'does not let you submit a name that is too short' do
-        visit '/restaurants'
-        click_link 'Add a restaurant'
-        fill_in 'Name', with: 'kf'
-        click_button 'Create Restaurant'
+        create_restaurant('kf')
         expect(page).not_to have_css 'h2', text: 'kf'
         expect(page).to have_content 'error'
       end
@@ -125,18 +116,9 @@ feature 'restaurants' do
 
   context 'Not my restaurant' do
     before do
-      visit '/'
-      click_link 'Add a restaurant'
-      fill_in 'Name', with: 'KFC'
-      click_button 'Create Restaurant'
-      expect(page).to have_content 'KFC'
+      create_restaurant(name)
       click_link 'Sign out'
-      visit '/'
-      click_link('Sign up')
-      fill_in('Email', with: 'test2@example.com')
-      fill_in('Password', with: 'testtest')
-      fill_in('Password confirmation', with: 'testtest')
-      click_button('Sign up')
+      sign_up(email2, password)
     end
 
     scenario 'Cannot edit/delete restaurant' do
