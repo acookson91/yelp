@@ -10,6 +10,9 @@
       Reviews for:
       = restaurant.name
 
+      %p Average rating:
+      = restaurant.average_rating
+
     - if restaurant.reviews.any?
       %ul
         - restaurant.reviews.each do |review|
